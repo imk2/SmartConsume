@@ -15,12 +15,12 @@ Built strictly with **plain HTML5, CSS3, and vanilla JavaScript** (`index.html`,
 
 ## Group Members & Contributions
 
-| Member Name | Student ID | Contributions |
-| :--- | :--- | :--- |
-| **Ahmad Salem** | TBD | Core application architecture, VS Code + Google Antigravity CLI workflow, and GitHub repository management (CLO5) |
-| **Shamil Basheer** | TBD | IoT sensor selection (SCT-013, ZMPT101B, ESP32) and Wi-Fi/MQTT protocol modeling (CLO4) |
-| **Anas Mohammed** | TBD | IoT sensor configuration panel, simulation parameters, and DEWA AED/kWh tariff setup (CLO7) |
-| **Rashid Ahmad** | TBD | Overload decision rule (> 3,000 W), Virtual Eco-Relay load-shedding logic, and boundary testing (CLO5 & CLO7) |
+| No. | Student Name | Student ID | Contributions |
+| :--- | :--- | :--- | :--- |
+| 1 | **Ahmad Salem** | TBD | Core JavaScript architecture (`script.js`), power aggregation and overload control logic (> 3,000 W), Virtual Eco-Relay load-shedding, DEWA AED/kWh cost calculations, VS Code + Google Antigravity CLI workflow, and GitHub repository management (CLO5 & CLO7) |
+| 2 | **Rashid Ahmad** | TBD | IoT sensor selection and architecture modeling (SCT-013 current sensor, ZMPT101B voltage sensor, ESP32, modeled Wi-Fi/MQTT telemetry) and IoT Sensor Configuration panel settings (sampling interval, 230 V reference, threshold, Manual/Auto-Sim) (CLO4 & CLO7) |
+| 3 | **Shamil Basheer** | TBD | System verification, normal/boundary (3,000 W)/overload/edge-case testing, input validation checks, Telemetry & Action Log verification, and lab test results documentation (CLO5 & CLO6) |
+| 4 | **Anas Mohammed** | TBD | Dashboard UI walkthrough (`index.html`, `style.css`), status badges, power gauge, appliance toggles, DEWA tariff presets, lab screenshots, and report/README formatting (CLO6) |
 
 ---
 
