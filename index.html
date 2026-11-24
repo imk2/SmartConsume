@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartIOT — Smart Energy Monitoring &amp; Load-Shedding Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Top Application Header -->
+    <header class="app-header">
+      <div class="brand-block">
+        <div class="brand-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z" />
+          </svg>
+        </div>
+        <div>
+          <h1>SmartIOT Energy Monitor</h1>
+          <p class="subtitle">Local Browser Simulation · Real-Time Load Telemetry &amp; Virtual Eco-Relay Control</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button type="button" id="sim-mode-pill" class="mode-pill mode-manual" aria-live="polite" title="Toggle Manual / Live Auto-Simulation">
+          <span class="pulse-dot" aria-hidden="true"></span>
+          <span id="sim-mode-pill-text">MANUAL MODE</span>
+        </button>
+        <button type="button" id="btn-preset-overload" class="btn btn-secondary">Demo Overload</button>
+        <button type="button" id="btn-reset-defaults" class="btn btn-ghost">Reset Defaults</button>
+      </div>
+    </header>
+
+    <main class="dashboard-main">
+      <!-- Top Hero Strip: Live Power Gauge + System Status KPI Cards -->
+      <section class="hero-grid" aria-label="Live Power Gauge and System Status">
+        <!-- Live Power Gauge & Threshold Progress Bar Card -->
+        <article id="gauge-card" class="panel gauge-panel zone-normal">
+          <div class="panel-header compact-header">
+            <div>
+              <h2>Live Power Gauge</h2>
+              <p class="panel-subtitle">Total Consumption vs. Overload Threshold</p>
+            </div>
+            <span id="gauge-zone-badge" class="status-badge badge-normal">Normal (&lt; 85%)</span>
+          </div>
+
+          <div class="gauge-body">
+            <div class="svg-gauge-wrap">
+              <svg id="power-gauge-svg" class="power-gauge-svg" viewBox="0 0 260 152" role="img" aria-label="Power consumption gauge against overload threshold">
+                <!-- Background zone tracks: 0-68% Green (<85% limit), 68-80% Yellow (85-100% limit), 80-100% Red (>100% limit) -->
+                <path id="gauge-zone-normal" class="gauge-track-zone zone-track-green" fill="none" stroke-width="16" stroke-linecap="butt" />
+                <path id="gauge-zone-near" class="gauge-track-zone zone-track-yellow" fill="none" stroke-width="16" stroke-linecap="butt" />
+                <path id="gauge-zone-overload" class="gauge-track-zone zone-track-red" fill="none" stroke-width="16" stroke-linecap="butt" />
+
+                <!-- Active value arc -->
+                <path id="gauge-active-arc" class="gauge-active-arc" d="M 32 128 A 98 98 0 0 1 228 128" fill="none" stroke-width="16" stroke-linecap="round" />
+
+                <!-- Threshold Marker Tick (at 80% of gauge scale = 100% of threshold) -->
+                <line id="gauge-threshold-tick" class="gauge-tick" x1="201" y1="77" x2="218" y2="64" />
+                <text id="gauge-threshold-tick-label" class="gauge-tick-label" x="221" y="58" text-anchor="start">LIMIT</text>
+
+                <!-- Scale endpoint labels -->
+                <text class="gauge-end-label" x="32" y="146" text-anchor="middle">0 W</text>
+                <text id="gauge-max-label" class="gauge-end-label" x="228" y="146" text-anchor="middle">3,750 W</text>
+              </svg>
+
+              <div class="gauge-center-readout">
+                <span id="kpi-total-watts" class="gauge-watts">1,580 W</span>
+                <span id="kpi-total-kw" class="gauge-kw">1.58 kW</span>
+                <span id="kpi-load-percent" class="gauge-pct">52.7% of limit</span>
+              </div>
+            </div>
+
+            <!-- Linear 3-Zone Threshold Comparison Bar -->
+            <div class="threshold-bar-block">
+              <div class="threshold-bar-labels">
+                <span id="kpi-total-amps">6.87 A @ 230 V</span>
+                <span id="kpi-threshold-label">Limit: 3,000 W</span>
+              </div>
+              <div class="threshold-track" aria-hidden="true">
+                <div class="zone-bg zone-bg-normal" style="width: 68%;"></div>
+                <div class="zone-bg zone-bg-near" style="left: 68%; width: 12%;"></div>
+                <div class="zone-bg zone-bg-overload" style="left: 80%; width: 20%;"></div>
+                <div id="kpi-load-fill" class="threshold-fill zone-normal" style="width: 42.1%;"></div>
+                <div class="threshold-marker-pin" style="left: 80%;" title="Overload Threshold (100%)"></div>
+              </div>
+              <div class="threshold-ticks-row">
+                <span>0 W</span>
+                <span id="tick-near-label">85% (2,550 W)</span>
+                <span id="tick-limit-label">Limit (3,000 W)</span>
+                <span id="gauge-headroom">1,420 W headroom</span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Right Column: 3 Core IoT Decision KPI Cards -->
+        <div class="kpi-stack">
+          <article id="kpi-status-card" class="kpi-card status-normal" aria-live="polite">
+            <div class="kpi-header">
+              <span class="kpi-label">System Status</span>
+              <span id="kpi-status-pill" class="status-badge badge-normal">Normal</span>
+            </div>
+            <div class="kpi-state-value" id="kpi-system-status">NORMAL</div>
+            <p class="kpi-footer-note" id="kpi-status-detail">1,580 W &le; 3,000 W threshold</p>
+          </article>
+
+          <article id="kpi-alert-card" class="kpi-card alert-off" aria-live="polite">
+            <div class="kpi-header">
+              <span class="kpi-label">Overload Alert</span>
+              <span class="kpi-rule-tag">Safety Flag</span>
+            </div>
+            <div class="kpi-state-value" id="kpi-alert-state">OFF</div>
+            <p class="kpi-footer-note" id="kpi-alert-detail">Load within safe operating limit</p>
+          </article>
+
+          <article id="kpi-relay-card" class="kpi-card relay-standby" aria-live="polite">
+            <div class="kpi-header">
+              <span class="kpi-label">Virtual Eco-Relay</span>
+              <span class="kpi-rule-tag">GPIO Actuator</span>
+            </div>
+            <div class="kpi-state-value" id="kpi-relay-state">STANDBY</div>
+            <p class="kpi-footer-note" id="kpi-relay-detail">No load-shedding required</p>
+          </article>
+
+          <article id="kpi-cost-card" class="kpi-card kpi-cost-card" aria-live="polite">
+            <div class="kpi-header">
+              <span class="kpi-label">Estimated Energy Cost</span>
+              <span class="kpi-sub-badge cost-rate-badge" id="kpi-cost-rate-badge">0.29 AED/kWh</span>
+            </div>
+            <div class="kpi-cost-primary">
+              <span class="kpi-state-value" id="kpi-cost-hourly">0.46 AED/hr</span>
+              <span class="kpi-cost-monthly" id="kpi-cost-monthly">329.90 AED/mo</span>
+            </div>
+            <div class="kpi-cost-session">
+              <span>Session: <strong id="kpi-session-energy">0.0000 kWh</strong></span>
+              <span>Cost: <strong id="kpi-session-cost">0.0000 AED</strong></span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- Virtual Eco-Relay & Automatic Load-Shedding Control Banner -->
+      <section id="relay-panel" class="panel relay-panel state-standby" aria-label="Overload Alert and Virtual Eco-Relay Control">
+        <div class="relay-main-row">
+          <div class="relay-info">
+            <div class="relay-title-row">
+              <span id="relay-badge" class="status-pill pill-standby">ECO-RELAY: STANDBY</span>
+              <h2>Load-Shedding &amp; Protection Control</h2>
+            </div>
+            <p id="relay-message" class="relay-message">
+              Total consumption (1,580 W) is within the 3,000 W threshold. Virtual Eco-Relay remains on STANDBY.
+            </p>
+          </div>
+
+          <div class="relay-controls">
+            <label class="switch-control" for="auto-shed-toggle" title="Automatically switch Air Fryer OFF or AC to Eco Mode when Total > Threshold">
+              <input type="checkbox" id="auto-shed-toggle">
+              <span class="switch-track" aria-hidden="true"></span>
+              <span class="switch-label">Auto Load-Shedding</span>
+            </label>
+
+            <div class="relay-action-buttons">
+              <button type="button" id="btn-shed-fryer" class="btn btn-warning">
+                Switch Air Fryer OFF
+              </button>
+              <button type="button" id="btn-shed-ac-eco" class="btn btn-amber">
+                Set AC to Eco Mode (&le; 800 W)
+              </button>
+              <button type="button" id="btn-dismiss-shed-notice" class="btn btn-ghost hidden">
+                Dismiss Notice
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Household Appliance Simulation Cards -->
+      <section class="section-block" aria-labelledby="appliances-heading">
+        <div class="section-header">
+          <div>
+            <h2 id="appliances-heading">Connected Appliances</h2>
+            <p class="section-desc">Live simulated loads (W), share of total demand, and circuit threshold status badges.</p>
+          </div>
+          <div class="legend-pills" aria-label="Status badge color key">
+            <span class="status-badge badge-normal">Normal (&lt; 85%)</span>
+            <span class="status-badge badge-near">Near Threshold (&ge; 85%)</span>
+            <span class="status-badge badge-overload">Overload (&gt; Limit)</span>
+          </div>
+        </div>
+
+        <div id="validation-banner" class="validation-banner hidden" role="status" aria-live="polite">
+          <span id="validation-message"></span>
+          <button type="button" id="btn-dismiss-validation" class="btn-inline-link">Dismiss</button>
+        </div>
+
+        <div class="appliances-grid">
+          <!-- 1. Air Conditioner -->
+          <article id="card-ac" class="panel appliance-card is-on zone-normal">
+            <div class="appliance-top">
+              <div class="appliance-identity">
+                <div class="appliance-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="4" width="20" height="9" rx="2" />
+                    <path d="M6 13v4M12 13v6M18 13v4" />
+                    <path d="M5 8h6" />
+                  </svg>
+                </div>
+                <div>
+                  <h3>Air Conditioner</h3>
+                  <span class="appliance-range">0 &ndash; 2,500 W · Default 1,400 W</span>
+                </div>
+              </div>
+
+              <div class="card-top-right">
+                <span id="status-badge-ac" class="status-badge badge-normal">Normal</span>
+                <label class="power-switch" for="toggle-ac" aria-label="Toggle Air Conditioner power">
+                  <input type="checkbox" id="toggle-ac" checked>
+                  <span class="switch-track" aria-hidden="true"></span>
+                  <span id="badge-ac" class="power-state-text">ON</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="appliance-readout-row">
+              <div>
+                <span id="watts-ac" class="appliance-watts">1,400 W</span>
+                <p id="meta-ac" class="appliance-meta">1.40 kW · 6.09 A · 0.41 AED/hr</p>
+              </div>
+              <div class="appliance-badges-col">
+                <span id="share-badge-ac" class="share-pill">88.6% of total</span>
+                <label class="eco-chip-toggle" for="toggle-ac-eco" title="Caps AC output to 800 W for energy-saving load reduction">
+                  <input type="checkbox" id="toggle-ac-eco">
+                  <span id="badge-ac-eco" class="eco-chip">Eco Mode</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="appliance-inputs">
+              <input
+                type="range"
+                id="slider-ac"
+                class="watt-slider"
+                min="0"
+                max="2500"
+                step="10"
+                value="1400"
+                aria-label="Air Conditioner wattage slider"
+              >
+              <div class="numeric-box">
+                <input
+                  type="number"
+                  id="input-ac"
+                  min="0"
+                  max="2500"
+                  step="1"
+                  value="1400"
+                  aria-label="Air Conditioner wattage numeric input"
+                >
+                <span class="unit-suffix">W</span>
+              </div>
+            </div>
+
+            <div class="share-bar-wrap">
+              <div class="share-bar-labels">
+                <span>Share of Total Load</span>
+                <span id="share-pct-text-ac">88.6%</span>
+              </div>
+              <div class="share-track" aria-hidden="true">
+                <div id="bar-ac" class="share-fill" style="width: 88.6%;"></div>
+              </div>
+            </div>
+          </article>
+
+          <!-- 2. Refrigerator -->
+          <article id="card-fridge" class="panel appliance-card is-on zone-normal">
+            <div class="appliance-top">
+              <div class="appliance-identity">
+                <div class="appliance-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="5" y="2" width="14" height="20" rx="2" />
+                    <path d="M5 10h14M9 6v2M9 13v4" />
+                  </svg>
+                </div>
+                <div>
+                  <h3>Refrigerator</h3>
+                  <span class="appliance-range">0 &ndash; 400 W · Default 180 W</span>
+                </div>
+              </div>
+
+              <div class="card-top-right">
+                <span id="status-badge-fridge" class="status-badge badge-normal">Normal</span>
+                <label class="power-switch" for="toggle-fridge" aria-label="Toggle Refrigerator power">
+                  <input type="checkbox" id="toggle-fridge" checked>
+                  <span class="switch-track" aria-hidden="true"></span>
+                  <span id="badge-fridge" class="power-state-text">ON</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="appliance-readout-row">
+              <div>
+                <span id="watts-fridge" class="appliance-watts">180 W</span>
+                <p id="meta-fridge" class="appliance-meta">0.18 kW · 0.78 A · 0.05 AED/hr</p>
+              </div>
+              <div class="appliance-badges-col">
+                <span id="share-badge-fridge" class="share-pill">11.4% of total</span>
+                <span class="duty-badge">Continuous Duty</span>
+              </div>
+            </div>
+
+            <div class="appliance-inputs">
+              <input
+                type="range"
+                id="slider-fridge"
+                class="watt-slider"
+                min="0"
+                max="400"
+                step="5"
+                value="180"
+                aria-label="Refrigerator wattage slider"
+              >
+              <div class="numeric-box">
+                <input
+                  type="number"
+                  id="input-fridge"
+                  min="0"
+                  max="400"
+                  step="1"
+                  value="180"
+                  aria-label="Refrigerator wattage numeric input"
+                >
+                <span class="unit-suffix">W</span>
+              </div>
+            </div>
+
+            <div class="share-bar-wrap">
+              <div class="share-bar-labels">
+                <span>Share of Total Load</span>
+                <span id="share-pct-text-fridge">11.4%</span>
+              </div>
+              <div class="share-track" aria-hidden="true">
+                <div id="bar-fridge" class="share-fill" style="width: 11.4%;"></div>
+              </div>
+            </div>
+          </article>
+
+          <!-- 3. Air Fryer -->
+          <article id="card-fryer" class="panel appliance-card is-off zone-off">
+            <div class="appliance-top">
+              <div class="appliance-identity">
+                <div class="appliance-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 7h14v9a5 5 0 0 1-5 5h-4a5 5 0 0 1-5-5V7z" />
+                    <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 11h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2" />
+                  </svg>
+                </div>
+                <div>
+                  <h3>Air Fryer</h3>
+                  <span class="appliance-range">0 &ndash; 1,800 W · Default 0 W</span>
+                </div>
+              </div>
+
+              <div class="card-top-right">
+                <span id="status-badge-fryer" class="status-badge badge-off">OFF</span>
+                <label class="power-switch" for="toggle-fryer" aria-label="Toggle Air Fryer power">
+                  <input type="checkbox" id="toggle-fryer">
+                  <span class="switch-track" aria-hidden="true"></span>
+                  <span id="badge-fryer" class="power-state-text">OFF</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="appliance-readout-row">
+              <div>
+                <span id="watts-fryer" class="appliance-watts">0 W</span>
+                <p id="meta-fryer" class="appliance-meta">0.00 kW · 0.00 A · 0.00 AED/hr</p>
+              </div>
+              <div class="appliance-badges-col">
+                <span id="share-badge-fryer" class="share-pill">0.0% of total</span>
+                <span class="duty-badge">High-Draw Peak</span>
+              </div>
+            </div>
+
+            <div class="appliance-inputs">
+              <input
+                type="range"
+                id="slider-fryer"
+                class="watt-slider"
+                min="0"
+                max="1800"
+                step="10"
+                value="0"
+                aria-label="Air Fryer wattage slider"
+              >
+              <div class="numeric-box">
+                <input
+                  type="number"
+                  id="input-fryer"
+                  min="0"
+                  max="1800"
+                  step="1"
+                  value="0"
+                  aria-label="Air Fryer wattage numeric input"
+                >
+                <span class="unit-suffix">W</span>
+              </div>
+            </div>
+
+            <div class="share-bar-wrap">
+              <div class="share-bar-labels">
+                <span>Share of Total Load</span>
+                <span id="share-pct-text-fryer">0.0%</span>
+              </div>
+              <div class="share-track" aria-hidden="true">
+                <div id="bar-fryer" class="share-fill" style="width: 0%;"></div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- Telemetry Chart + CLO7 IoT Sensor Configuration -->
+      <section class="two-col-grid">
+        <article class="panel chart-panel" aria-label="Real-Time Power Telemetry Chart">
+          <div class="panel-header">
+            <div>
+              <h2>Real-Time Power Telemetry</h2>
+              <p class="panel-subtitle">Demand trend (W) with 85% Near-Threshold and 100% Overload reference lines</p>
+            </div>
+            <div class="chart-legend">
+              <span class="legend-item"><span class="swatch swatch-load"></span> Total Load (W)</span>
+              <span class="legend-item"><span class="swatch swatch-near"></span> <span id="chart-legend-near">85% (2,550 W)</span></span>
+              <span class="legend-item"><span class="swatch swatch-threshold"></span> <span id="chart-legend-threshold">Limit (3,000 W)</span></span>
+            </div>
+          </div>
+
+          <div class="canvas-wrap">
+            <canvas id="power-chart" aria-label="Line chart of simulated total power consumption over time"></canvas>
+          </div>
+          <div class="panel-footnote">
+            <span id="chart-sample-count">1 sample plotted</span>
+            <span id="next-sample-indicator">Manual updates active</span>
+          </div>
+        </article>
+
+        <!-- CLO7: Dedicated IoT Sensor Configuration Panel -->
+        <section class="panel config-panel" aria-labelledby="clo7-heading">
+          <div class="panel-header">
+            <div>
+              <span class="clo-tag">CLO7 · Sensor Configuration</span>
+              <h2 id="clo7-heading">IoT Sensor Configuration</h2>
+              <p class="panel-subtitle">Configure sampling cadence, voltage reference, overload limit, and simulation mode.</p>
+            </div>
+          </div>
+
+          <div class="config-form">
+            <div class="config-group">
+              <span class="config-label">Simulation Mode</span>
+              <div class="segmented-control" role="radiogroup" aria-label="Simulation mode">
+                <label class="segment-option">
+                  <input type="radio" name="sim-mode" value="manual" checked>
+                  <span>Manual</span>
+                </label>
+                <label class="segment-option">
+                  <input type="radio" name="sim-mode" value="auto">
+                  <span>Live Auto-Simulation</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="config-group">
+              <span class="config-label">Sampling Interval (Auto-Simulation)</span>
+              <div class="segmented-control" role="radiogroup" aria-label="Sampling interval in seconds">
+                <label class="segment-option">
+                  <input type="radio" name="sampling-interval" value="1">
+                  <span>1s</span>
+                </label>
+                <label class="segment-option">
+                  <input type="radio" name="sampling-interval" value="2" checked>
+                  <span>2s</span>
+                </label>
+                <label class="segment-option">
+                  <input type="radio" name="sampling-interval" value="5">
+                  <span>5s</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="config-row-two">
+              <div class="config-group">
+                <label class="config-label" for="config-voltage">Line Voltage Reference (V)</label>
+                <div class="numeric-box full-width">
+                  <input type="number" id="config-voltage" min="100" max="260" step="1" value="230">
+                  <span class="unit-suffix">V AC</span>
+                </div>
+                <span class="config-hint">Used to derive current: I = P / V</span>
+              </div>
+
+              <div class="config-group">
+                <label class="config-label" for="config-threshold">Overload Threshold (W)</label>
+                <div class="numeric-box full-width">
+                  <input type="number" id="config-threshold" min="200" max="10000" step="50" value="3000">
+                  <span class="unit-suffix">W</span>
+                </div>
+                <span class="config-hint">Triggers alert when Total &gt; Limit</span>
+              </div>
+            </div>
+
+            <div class="config-group">
+              <label class="config-label" for="config-tariff">Electricity Tariff (AED/kWh)</label>
+              <div class="tariff-control-row">
+                <div class="numeric-box full-width">
+                  <input type="number" id="config-tariff" min="0.01" max="2.00" step="0.01" value="0.29">
+                  <span class="unit-suffix">AED/kWh</span>
+                </div>
+                <select id="config-tariff-slab" class="slab-select" aria-label="DEWA residential tariff slab preset">
+                  <option value="0.29" selected>Green (0.29)</option>
+                  <option value="0.34">Yellow (0.34)</option>
+                  <option value="0.38">Orange (0.38)</option>
+                  <option value="0.44">Red (0.44)</option>
+                  <option value="custom">Custom</option>
+                </select>
+              </div>
+              <span class="config-hint">DEWA residential slabs (incl. 0.06 AED/kWh fuel surcharge)</span>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <!-- CLO4: IoT Architecture & Protocol Info + Simulated MQTT Telemetry -->
+      <section class="panel architecture-panel" aria-labelledby="clo4-heading">
+        <div class="arch-grid">
+          <div class="arch-details">
+            <span class="clo-tag">CLO4 · IoT Architecture &amp; Protocol Model</span>
+            <h2 id="clo4-heading">Hardware Abstraction &amp; Local Telemetry Simulation</h2>
+
+            <div class="sim-notice" role="note">
+              <strong>Browser Simulation Notice:</strong> This application is a <strong>100% local browser simulation</strong> modeling Wi-Fi / MQTT telemetry and ESP32 sensor logic in JavaScript. No live networking hardware, external MQTT broker, paid APIs, or physical sensors are required or connected.
+            </div>
+
+            <div class="arch-pipeline" aria-label="Simulated IoT data flow">
+              <div class="arch-node">
+                <span class="node-step">1. Sensing Layer</span>
+                <strong>SCT-013 + ZMPT101B</strong>
+                <p>Models an <strong>SCT-013</strong> non-invasive split-core AC current transformer sensor and a <strong>ZMPT101B</strong> isolated AC voltage sensor module calibrated around the 230 V reference.</p>
+              </div>
+              <div class="arch-node">
+                <span class="node-step">2. Edge MCU (JS Engine)</span>
+                <strong>ESP32 Microcontroller</strong>
+                <p><code>script.js</code> emulates ESP32 ADC sampling at the configured interval (1s / 2s / 5s), generating bounded appliance load waveforms, summing total watts (W &amp; kW), and computing current (<code>I = P / V</code>).</p>
+              </div>
+              <div class="arch-node">
+                <span class="node-step">3. Control &amp; Telemetry</span>
+                <strong>Virtual Eco-Relay &amp; MQTT</strong>
+                <p>Evaluates <code>Total &gt; Threshold</code> to switch the Virtual Eco-Relay GPIO actuator and constructs a local Wi-Fi / MQTT JSON payload without live network transmission.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="mqtt-preview-card">
+            <div class="mqtt-header">
+              <div>
+                <span class="mqtt-badge">SIMULATED MQTT PAYLOAD</span>
+                <code id="mqtt-topic" class="mqtt-topic">home/smartiot/esp32-node-01/telemetry</code>
+              </div>
+              <div class="mqtt-actions">
+                <span id="mqtt-packet-counter" class="packet-counter">Packet #1</span>
+                <button type="button" id="btn-copy-mqtt" class="btn btn-ghost btn-sm">Copy JSON</button>
+              </div>
+            </div>
+            <pre id="mqtt-payload" class="mqtt-json"></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bottom Section: Timestamped IoT Telemetry & Action Log Table -->
+      <section class="panel log-panel" aria-labelledby="telemetry-log-heading">
+        <div class="panel-header">
+          <div>
+            <h2 id="telemetry-log-heading">IoT Telemetry &amp; Action Log</h2>
+            <p class="panel-subtitle">Timestamped record of threshold crossings (&ge; 85% / &gt; Limit) and Virtual Eco-Relay actions.</p>
+          </div>
+          <div class="log-header-actions">
+            <span id="relay-log-count" class="kpi-sub-badge">1 event</span>
+            <button type="button" id="btn-clear-log" class="btn btn-ghost btn-sm">Clear Log</button>
+          </div>
+        </div>
+
+        <div class="table-scroll">
+          <table class="telemetry-table">
+            <thead>
+              <tr>
+                <th scope="col">Time</th>
+                <th scope="col">AC W</th>
+                <th scope="col">Fridge W</th>
+                <th scope="col">Air Fryer W</th>
+                <th scope="col">Total W</th>
+                <th scope="col">Action Taken</th>
+              </tr>
+            </thead>
+            <tbody id="telemetry-log-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
