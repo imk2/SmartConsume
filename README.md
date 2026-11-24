@@ -146,3 +146,4 @@ SmartIOT/
 - **Physical Solid-State Relay (SSR) Actuation:** Connect an opto-isolated relay module to ESP32 GPIO pins to physically switch non-essential high-draw outlets or send IR/smart-plug Eco commands to the AC.
 - **Live MQTT & Time-Series Backend:** Publish TLS-secured telemetry (`MQTTS`) to a Mosquitto or EMQX broker feeding **Node-RED**, **InfluxDB**, and **Grafana** for multi-day `kWh` energy tracking and billing analytics.
 - **Browser Persistence & Export:** Add `localStorage` persistence and CSV/JSON export for the Telemetry & Action Log.
+# SmartConsume
