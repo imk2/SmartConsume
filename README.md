@@ -6,6 +6,24 @@ Built strictly with **plain HTML5, CSS3, and vanilla JavaScript** (`index.html`,
 
 ---
 
+## Course Information
+
+- **Course:** ITEC 310 – Internet of Things (Group Lab Project)
+- **Instructor:** Dr. Maher Alrahhal
+- **University:** Amity University Dubai
+- **Semester:** Fall 2026
+
+## Group Members & Contributions
+
+| Member Name | Student ID | Contributions |
+| :--- | :--- | :--- |
+| **Ahmad Salem** | TBD | Core application architecture, VS Code + Google Antigravity CLI workflow, and GitHub repository management (CLO5) |
+| **Shamil Basheer** | TBD | IoT sensor selection (SCT-013, ZMPT101B, ESP32) and Wi-Fi/MQTT protocol modeling (CLO4) |
+| **Anas Mohammed** | TBD | IoT sensor configuration panel, simulation parameters, and DEWA AED/kWh tariff setup (CLO7) |
+| **Rashid Ahmad** | TBD | Overload decision rule (> 3,000 W), Virtual Eco-Relay load-shedding logic, and boundary testing (CLO5 & CLO7) |
+
+---
+
 ## Project Purpose
 
 Residential circuits frequently experience peak-demand overloads when heavy inductive and heating loads run simultaneously. **SmartIOT** demonstrates core IoT sensing, edge decision logic, user-configurable telemetry parameters (**CLO7**), and protocol/hardware abstraction (**CLO4**) in an interactive local dashboard:
