@@ -1,5 +1,7 @@
 # SmartIOT — Smart Energy Monitoring & Load-Shedding Dashboard
 
+**Live Demo:** [https://imk2.github.io/SmartConsume/](https://imk2.github.io/SmartConsume/) *(GitHub Pages)*
+
 A zero-dependency, browser-based IoT simulation dashboard for monitoring household electricity consumption across three high-impact appliances (**Air Conditioner**, **Refrigerator**, and **Air Fryer**) and preventing circuit overloads through an automated **Virtual Eco-Relay** load-shedding controller.
 
 Built strictly with **plain HTML5, CSS3, and vanilla JavaScript** (`index.html`, `style.css`, `script.js`)—requiring no external frameworks, paid APIs, cloud services, or physical hardware.
@@ -17,10 +19,10 @@ Built strictly with **plain HTML5, CSS3, and vanilla JavaScript** (`index.html`,
 
 | No. | Student Name | Student ID | Contributions |
 | :--- | :--- | :--- | :--- |
-| 1 | **Ahmad Salem** | TBD | Core JavaScript architecture (`script.js`), power aggregation and overload control logic (> 3,000 W), Virtual Eco-Relay load-shedding, DEWA AED/kWh cost calculations, VS Code + Google Antigravity CLI workflow, and GitHub repository management (CLO5 & CLO7) |
-| 2 | **Rashid Ahmad** | TBD | IoT sensor selection and architecture modeling (SCT-013 current sensor, ZMPT101B voltage sensor, ESP32, modeled Wi-Fi/MQTT telemetry) and IoT Sensor Configuration panel settings (sampling interval, 230 V reference, threshold, Manual/Auto-Sim) (CLO4 & CLO7) |
-| 3 | **Shamil Basheer** | TBD | System verification, normal/boundary (3,000 W)/overload/edge-case testing, input validation checks, Telemetry & Action Log verification, and lab test results documentation (CLO5 & CLO6) |
-| 4 | **Anas Mohammed** | TBD | Dashboard UI walkthrough (`index.html`, `style.css`), status badges, power gauge, appliance toggles, DEWA tariff presets, lab screenshots, and report/README formatting (CLO6) |
+| 1 | **Ahmad Salem** | AUD31057 | Core JavaScript architecture (`script.js`), power aggregation and overload control logic (> 3,000 W), Virtual Eco-Relay load-shedding, DEWA AED/kWh cost calculations, VS Code + Google Antigravity CLI workflow, and GitHub repository management (CLO5 & CLO7) |
+| 2 | **Rashid Ahmad** | AUD32131 | IoT sensor selection and architecture modeling (SCT-013 current sensor, ZMPT101B voltage sensor, ESP32, modeled Wi-Fi/MQTT telemetry) and IoT Sensor Configuration panel settings (sampling interval, 230 V reference, threshold, Manual/Auto-Sim) (CLO4 & CLO7) |
+| 3 | **Shamil Basheer** | AUD31033 | System verification, normal/boundary (3,000 W)/overload/edge-case testing, input validation checks, Telemetry & Action Log verification, and lab test results documentation (CLO5 & CLO6) |
+| 4 | **Anas Mohammed Ahmed** | AUD32429 | Dashboard UI walkthrough (`index.html`, `style.css`), status badges, power gauge, appliance toggles, DEWA tariff presets, lab screenshots, and report/README formatting (CLO6) |
 
 ---
 
